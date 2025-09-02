@@ -31,6 +31,7 @@ local hrp = char:WaitForChild("HumanoidRootPart")
 local WalkSpeedValue = 16
 local JumpHeightValue = 50
 local DashLengthValue = 50
+local AccelerationFactor = 1 -- שליטה בווליום של ההאצה
 
 -- עדכון דמות גם אחרי respawn
 plr.CharacterAdded:Connect(function(c)
@@ -39,10 +40,13 @@ plr.CharacterAdded:Connect(function(c)
     hrp = c:WaitForChild("HumanoidRootPart")
 end)
 
--- פונקציה להזזת השחקן קדימה לפי WalkSpeed
+-- פונקציה להזזת השחקן קדימה לפי WalkSpeed * ווליום
 game:GetService("RunService").Heartbeat:Connect(function()
     if hrp and hum.MoveDirection.Magnitude > 0 then
-        hrp.Velocity = hum.MoveDirection * WalkSpeedValue
+        local direction = hum.MoveDirection.Unit
+        local currentVel = hrp.Velocity
+        local targetVel = direction * WalkSpeedValue * hum.MoveDirection.Magnitude * AccelerationFactor
+        hrp.Velocity = Vector3.new(targetVel.X, currentVel.Y, targetVel.Z)
     end
 end)
 
@@ -56,6 +60,19 @@ PlayerSection:CreateSlider({
     Flag = "Slider1",
     Callback = function(Value)
         WalkSpeedValue = Value
+    end
+})
+
+-- Acceleration/Volume Slider
+PlayerSection:CreateSlider({
+    Name = "Speed Volume",
+    Range = {0.1, 2},
+    Increment = 0.1,
+    Suffix = "x",
+    CurrentValue = AccelerationFactor,
+    Flag = "SliderVol",
+    Callback = function(Value)
+        AccelerationFactor = Value
     end
 })
 
