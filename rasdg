@@ -1,0 +1,44 @@
+-- טעינת ספריית Rayfield
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+-- יצירת חלון עם ערכת נושא מותאמת מראש
+local Window = Rayfield:CreateWindow({
+    Name = "My Menu",
+    LoadingTitle = "טעינת תפריט...",
+    LoadingSubtitle = "Rayfield GUI",
+    Theme = "Ocean",  -- ניתן לשנות לערכת נושא אחרת כפי שצוינה לעיל
+    ToggleUIKeybind = "K",  -- מאפשר פתיחה/סגירה עם מקש 'K'
+    ConfigurationSaving = {
+        Enabled = true,
+        FolderName = "MyConfigs",
+        FileName = "MovementSettings",
+        AutoSave = true,
+        AutoLoad = true
+    }
+})
+
+-- יצירת טאבים ואזור לשליטה בתנועה
+local MovementTab = Window:CreateTab("Movement", "play")
+local MovementSection = MovementTab:CreateSection("Adjust Movement")
+
+-- סליידר לבחירת WalkSpeed
+MovementSection:CreateSlider({
+    Name = "WalkSpeed",
+    Range = {0, 300},
+    Increment = 1,
+    Suffix = "Stud/s",
+    CurrentValue = 16,
+    Flag = "WalkSpeedFlag",
+    Callback = function(Value)
+        local player = game:GetService("Players").LocalPlayer
+        local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid.WalkSpeed = Value
+        end
+    end,
+})
+
+-- הפעלת טעינת תצורה שמורה
+Rayfield:LoadConfiguration()
+
+--2
