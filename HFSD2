@@ -1,0 +1,113 @@
+-- טעינת ספריית Rayfield
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+-- יצירת חלון ראשי עם ערכת נושא מודרנית
+local Window = Rayfield:CreateWindow({
+    Name = "🚀 Modern Menu",
+    LoadingTitle = "טוען תפריט...",
+    LoadingSubtitle = "Custom GUI",
+    Theme = "Ocean",           -- אפשר לשנות ל: Default, Amethyst, Bloom, DarkBlue, Green, Light, Ocean, Serenity
+    ToggleUIKeybind = "K",     -- מקש לפתיחה וסגירה של התפריט
+    ConfigurationSaving = {
+        Enabled = true,
+        FolderName = "MyConfigs",
+        FileName = "PlayerSettings",
+        AutoSave = true,
+        AutoLoad = true
+    }
+})
+
+-- ======================
+--  טאבים וסקשנים
+-- ======================
+
+-- טאבים
+local MovementTab = Window:CreateTab("Movement", "play")
+local MovementSection = MovementTab:CreateSection("Adjust Movement")
+
+-- ======================
+-- משתנים גלובליים
+-- ======================
+local UserWalkSpeed = 16
+local UserJumpPower = 50
+local InfiniteJumpEnabled = false
+
+-- ======================
+-- סליידר WalkSpeed
+-- ======================
+MovementSection:CreateSlider({
+    Name = "WalkSpeed",
+    Range = {16, 300},
+    Increment = 1,
+    Suffix = "Stud/s",
+    CurrentValue = 16,
+    Flag = "WalkSpeedFlag",
+    Callback = function(Value)
+        UserWalkSpeed = Value
+    end,
+})
+
+-- ======================
+-- סליידר JumpPower
+-- ======================
+MovementSection:CreateSlider({
+    Name = "JumpPower",
+    Range = {50, 400},
+    Increment = 1,
+    Suffix = "",
+    CurrentValue = 50,
+    Flag = "JumpPowerFlag",
+    Callback = function(Value)
+        UserJumpPower = Value
+    end,
+})
+
+-- ======================
+-- כפתור Infinite Jump
+-- ======================
+MovementSection:CreateToggle({
+    Name = "Infinite Jump",
+    CurrentValue = false,
+    Flag = "InfiniteJumpFlag",
+    Callback = function(Value)
+        InfiniteJumpEnabled = Value
+    end
+})
+
+-- ======================
+-- שמירה ועדכון תמידי
+-- ======================
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+
+RunService.Stepped:Connect(function()
+    local char = LocalPlayer.Character
+    if char then
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        if hum then
+            hum.WalkSpeed = UserWalkSpeed
+            hum.JumpPower = UserJumpPower
+        end
+    end
+end)
+
+-- ======================
+-- Infinite Jump
+-- ======================
+game:GetService("UserInputService").JumpRequest:Connect(function()
+    if InfiniteJumpEnabled then
+        local char = LocalPlayer.Character
+        if char then
+            local hum = char:FindFirstChildOfClass("Humanoid")
+            if hum and not hum:GetState() == Enum.HumanoidStateType.Seated then
+                hum:ChangeState(Enum.HumanoidStateType.Jumping)
+            end
+        end
+    end
+end)
+
+-- ======================
+-- טעינת תצורה שמורה
+-- ======================
+Rayfield:LoadConfiguration()
