@@ -43,7 +43,7 @@ end)
 -- WalkSpeed Slider (כמו הסגנון שלך)
 local Slider = PlayerTab:CreateSlider({
     Name = "WalkSpeed",
-    Range = {1, 10},
+    Range = {1, 200},
     Increment = 1,
     Suffix = "Speed",
     CurrentValue = WalkSpeedValue,
