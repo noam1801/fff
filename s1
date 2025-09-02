@@ -1,0 +1,160 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+    Name = "Tutorial Script Hub",
+    LoadingTitle = "Tutorial Script Hub",
+    LoadingSubtitle = "by Rolo",
+    Theme = "Ocean",
+    ToggleUIKeybind = "K",
+    ConfigurationSaving = {
+       Enabled = true,
+       FolderName = nil,
+       FileName = "Big Hub"
+    },
+    Discord = {
+       Enabled = false,
+       Invite = "noinvitelink",
+       RememberJoins = true
+    },
+    KeySystem = false
+})
+
+local PlayerTab = Window:CreateTab("Player", 4483362458)
+local PlayerSection = PlayerTab:CreateSection("Player Settings")
+local SpawnSection = PlayerTab:CreateSection("Spawn Things") -- Section חדש ל-Waypoints
+
+local plr = game.Players.LocalPlayer
+local char = plr.Character or plr.CharacterAdded:Wait()
+local hum = char:WaitForChild("Humanoid")
+local hrp = char:WaitForChild("HumanoidRootPart")
+
+-- ערכי ברירת מחדל
+local WalkSpeedValue = 10
+local SpeedVolume = 1
+local JumpHeightValue = 50
+local DashLengthValue = 50
+
+-- דברים ל־Waypoint
+local WaypointThings = {
+    Speed = 50,
+    Things = {
+        ["Thing"] = {TargetWaypoint = Vector3.new(0,10,0)},
+        ["Human"] = {TargetWaypoint = Vector3.new(50,10,50)},
+        ["EpicThing"] = {TargetWaypoint = Vector3.new(-100,10,30)}
+    }
+}
+
+plr.CharacterAdded:Connect(function(c)
+    char = c
+    hum = c:WaitForChild("Humanoid")
+    hrp = c:WaitForChild("HumanoidRootPart")
+end)
+
+-- פונקציה לשיגור ל-Waypoint
+local function SpawnToWaypoint(name)
+    local objData = WaypointThings.Things[name]
+    if not objData then return end
+
+    local part = Instance.new("Part")
+    part.Size = Vector3.new(2,2,2)
+    part.Position = hrp.Position + Vector3.new(0,5,0) -- ליד השחקן
+    part.Anchored = false
+    part.Parent = workspace
+
+    local bodyVelocity = Instance.new("BodyVelocity")
+    bodyVelocity.Velocity = (objData.TargetWaypoint - part.Position).Unit * WaypointThings.Speed
+    bodyVelocity.MaxForce = Vector3.new(1e5,1e5,1e5)
+    bodyVelocity.Parent = part
+
+    game:GetService("Debris"):AddItem(part, 10)
+end
+
+-- WalkSpeed Slider
+PlayerSection:CreateSlider({
+    Name = "WalkSpeed",
+    Range = {1, 10},
+    Increment = 1,
+    Suffix = "Speed",
+    CurrentValue = WalkSpeedValue,
+    Flag = "Slider1",
+    Callback = function(Value)
+        WalkSpeedValue = Value
+        plr.Character:SetAttribute("SpeedMultiplier", Value)
+    end,
+})
+
+-- Speed Volume Slider
+PlayerSection:CreateSlider({
+    Name = "Speed Volume",
+    Range = {0.1, 2},
+    Increment = 0.1,
+    Suffix = "x",
+    CurrentValue = SpeedVolume,
+    Flag = "SliderVol",
+    Callback = function(Value)
+        SpeedVolume = Value
+    end,
+})
+
+-- JumpHeight Slider
+PlayerSection:CreateSlider({
+    Name = "Jump Height",
+    Range = {50, 500},
+    Increment = 1,
+    Suffix = "Height",
+    CurrentValue = JumpHeightValue,
+    Flag = "Slider2",
+    Callback = function(Value)
+        JumpHeightValue = Value
+        plr.Character:SetAttribute("JumpHeight", Value)
+    end,
+})
+
+-- DashLength Slider
+PlayerSection:CreateSlider({
+    Name = "Dash Length",
+    Range = {10, 1000},
+    Increment = 10,
+    Suffix = "Studs",
+    CurrentValue = DashLengthValue,
+    Flag = "Slider3",
+    Callback = function(Value)
+        DashLengthValue = Value
+        plr.Character:SetAttribute("DashLength", Value)
+    end,
+})
+
+-- כפתורי Spawn ל-Waypoint
+for thingName, _ in pairs(WaypointThings.Things) do
+    SpawnSection:CreateButton({
+        Name = "Spawn " .. thingName,
+        Callback = function()
+            SpawnToWaypoint(thingName)
+        end
+    })
+end
+
+-- Heartbeat ל-WalkSpeed עם Volume
+game:GetService("RunService").Heartbeat:Connect(function()
+    if hrp and hum.MoveDirection.Magnitude > 0 then
+        local direction = hum.MoveDirection.Unit
+        local currentVel = hrp.Velocity
+        local targetVel = direction * WalkSpeedValue * SpeedVolume
+        hrp.Velocity = Vector3.new(targetVel.X, currentVel.Y, targetVel.Z)
+    end
+end)
+
+-- קפיצה עם JumpHeight
+hum:GetPropertyChangedSignal("Jump"):Connect(function()
+    if hum.Jump then
+        hrp.Velocity = Vector3.new(hrp.Velocity.X, JumpHeightValue, hrp.Velocity.Z)
+    end
+end)
+
+-- Dash עם Q
+game:GetService("UserInputService").InputBegan:Connect(function(input, gpe)
+    if gpe then return end
+    if input.KeyCode == Enum.KeyCode.Q and hrp then
+        hrp.CFrame = hrp.CFrame + (hum.MoveDirection * DashLengthValue)
+    end
+end)
