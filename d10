@@ -28,56 +28,47 @@ local hum = char:WaitForChild("Humanoid")
 local hrp = char:WaitForChild("HumanoidRootPart")
 
 -- ערכי ברירת מחדל
-local WalkSpeedValue = 16
+local WalkSpeedValue = 10 -- כפי שאתה אוהב בסליידר
+local SpeedVolume = 1
 local JumpHeightValue = 50
 local DashLengthValue = 50
-local AccelerationFactor = 1 -- שליטה בווליום של ההאצה
 
--- עדכון דמות גם אחרי respawn
+-- עדכון אחרי Respawn
 plr.CharacterAdded:Connect(function(c)
     char = c
     hum = c:WaitForChild("Humanoid")
     hrp = c:WaitForChild("HumanoidRootPart")
 end)
 
--- פונקציה להזזת השחקן קדימה לפי WalkSpeed * ווליום
-game:GetService("RunService").Heartbeat:Connect(function()
-    if hrp and hum.MoveDirection.Magnitude > 0 then
-        local direction = hum.MoveDirection.Unit
-        local currentVel = hrp.Velocity
-        local targetVel = direction * WalkSpeedValue * hum.MoveDirection.Magnitude * AccelerationFactor
-        hrp.Velocity = Vector3.new(targetVel.X, currentVel.Y, targetVel.Z)
-    end
-end)
-
--- WalkSpeed Slider
-PlayerSection:CreateSlider({
+-- WalkSpeed Slider (כמו הסגנון שלך)
+local Slider = PlayerTab:CreateSlider({
     Name = "WalkSpeed",
-    Range = {16, 300},
+    Range = {1, 10},
     Increment = 1,
     Suffix = "Speed",
     CurrentValue = WalkSpeedValue,
     Flag = "Slider1",
     Callback = function(Value)
         WalkSpeedValue = Value
-    end
+        plr.Character:SetAttribute("SpeedMultiplier", Value) -- לשמור את הערך ב-Attribute
+    end,
 })
 
--- Acceleration/Volume Slider
-PlayerSection:CreateSlider({
+-- Speed Volume Slider
+local SliderVol = PlayerTab:CreateSlider({
     Name = "Speed Volume",
     Range = {0.1, 2},
     Increment = 0.1,
     Suffix = "x",
-    CurrentValue = AccelerationFactor,
+    CurrentValue = SpeedVolume,
     Flag = "SliderVol",
     Callback = function(Value)
-        AccelerationFactor = Value
-    end
+        SpeedVolume = Value
+    end,
 })
 
 -- JumpHeight Slider
-PlayerSection:CreateSlider({
+local SliderJump = PlayerTab:CreateSlider({
     Name = "Jump Height",
     Range = {50, 500},
     Increment = 1,
@@ -86,18 +77,12 @@ PlayerSection:CreateSlider({
     Flag = "Slider2",
     Callback = function(Value)
         JumpHeightValue = Value
-    end
+        plr.Character:SetAttribute("JumpHeight", Value)
+    end,
 })
 
--- חיבור לקפיצה עם כוח מותאם אישית
-hum:GetPropertyChangedSignal("Jump"):Connect(function()
-    if hum.Jump then
-        hrp.Velocity = Vector3.new(hrp.Velocity.X, JumpHeightValue, hrp.Velocity.Z)
-    end
-end)
-
 -- DashLength Slider
-PlayerSection:CreateSlider({
+local SliderDash = PlayerTab:CreateSlider({
     Name = "Dash Length",
     Range = {10, 1000},
     Increment = 10,
@@ -106,10 +91,28 @@ PlayerSection:CreateSlider({
     Flag = "Slider3",
     Callback = function(Value)
         DashLengthValue = Value
-    end
+        plr.Character:SetAttribute("DashLength", Value)
+    end,
 })
 
--- כפתור Dash (לחיצה על Q)
+-- Heartbeat ל־WalkSpeed עם Volume
+game:GetService("RunService").Heartbeat:Connect(function()
+    if hrp and hum.MoveDirection.Magnitude > 0 then
+        local direction = hum.MoveDirection.Unit
+        local currentVel = hrp.Velocity
+        local targetVel = direction * WalkSpeedValue * SpeedVolume
+        hrp.Velocity = Vector3.new(targetVel.X, currentVel.Y, targetVel.Z)
+    end
+end)
+
+-- קפיצה עם JumpHeight
+hum:GetPropertyChangedSignal("Jump"):Connect(function()
+    if hum.Jump then
+        hrp.Velocity = Vector3.new(hrp.Velocity.X, JumpHeightValue, hrp.Velocity.Z)
+    end
+end)
+
+-- Dash עם Q
 game:GetService("UserInputService").InputBegan:Connect(function(input, gpe)
     if gpe then return end
     if input.KeyCode == Enum.KeyCode.Q and hrp then
