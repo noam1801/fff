@@ -1,0 +1,101 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+    Name = "Tutorial Script Hub",
+    LoadingTitle = "Tutorial Script Hub",
+    LoadingSubtitle = "by Rolo",
+    Theme = "Ocean",
+    ToggleUIKeybind = "K",
+    ConfigurationSaving = {
+       Enabled = true,
+       FolderName = nil,
+       FileName = "Big Hub"
+    },
+    Discord = {
+       Enabled = false,
+       Invite = "noinvitelink",
+       RememberJoins = true
+    },
+    KeySystem = false
+})
+
+local PlayerTab = Window:CreateTab("Player", 4483362458)
+local PlayerSection = PlayerTab:CreateSection("Player Settings")
+
+local plr = game.Players.LocalPlayer
+local char = plr.Character or plr.CharacterAdded:Wait()
+local hum = char:WaitForChild("Humanoid")
+local hrp = char:WaitForChild("HumanoidRootPart")
+
+-- ערכי ברירת מחדל
+local WalkSpeedValue = 16
+local JumpHeightValue = 50
+local DashLengthValue = 50
+
+-- עדכון דמות גם אחרי respawn
+plr.CharacterAdded:Connect(function(c)
+    char = c
+    hum = c:WaitForChild("Humanoid")
+    hrp = c:WaitForChild("HumanoidRootPart")
+end)
+
+-- פונקציה להזזת השחקן קדימה לפי WalkSpeed
+game:GetService("RunService").Heartbeat:Connect(function()
+    if hrp and hum.MoveDirection.Magnitude > 0 then
+        hrp.Velocity = hum.MoveDirection * WalkSpeedValue
+    end
+end)
+
+-- WalkSpeed Slider
+PlayerSection:CreateSlider({
+    Name = "WalkSpeed",
+    Range = {16, 300},
+    Increment = 1,
+    Suffix = "Speed",
+    CurrentValue = WalkSpeedValue,
+    Flag = "Slider1",
+    Callback = function(Value)
+        WalkSpeedValue = Value
+    end
+})
+
+-- JumpHeight Slider
+PlayerSection:CreateSlider({
+    Name = "Jump Height",
+    Range = {50, 500},
+    Increment = 1,
+    Suffix = "Height",
+    CurrentValue = JumpHeightValue,
+    Flag = "Slider2",
+    Callback = function(Value)
+        JumpHeightValue = Value
+    end
+})
+
+-- חיבור לקפיצה עם כוח מותאם אישית
+hum:GetPropertyChangedSignal("Jump"):Connect(function()
+    if hum.Jump then
+        hrp.Velocity = Vector3.new(hrp.Velocity.X, JumpHeightValue, hrp.Velocity.Z)
+    end
+end)
+
+-- DashLength Slider
+PlayerSection:CreateSlider({
+    Name = "Dash Length",
+    Range = {10, 1000},
+    Increment = 10,
+    Suffix = "Studs",
+    CurrentValue = DashLengthValue,
+    Flag = "Slider3",
+    Callback = function(Value)
+        DashLengthValue = Value
+    end
+})
+
+-- כפתור Dash (לחיצה על Q)
+game:GetService("UserInputService").InputBegan:Connect(function(input, gpe)
+    if gpe then return end
+    if input.KeyCode == Enum.KeyCode.Q and hrp then
+        hrp.CFrame = hrp.CFrame + (hum.MoveDirection * DashLengthValue)
+    end
+end)
