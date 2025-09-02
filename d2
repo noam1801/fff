@@ -1,10 +1,36 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
+-- יצירת ה-Window המתקדם
 local Window = Rayfield:CreateWindow({
-    Name = "Modern Menu",
-    LoadingTitle = "טוען תפריט...",
-    LoadingSubtitle = "Rayfield GUI",
-    Theme = "Ocean"
+   Name = "Rayfield Example Window",
+   Icon = 0,
+   LoadingTitle = "Rayfield Interface Suite",
+   LoadingSubtitle = "by Sirius",
+   ShowText = "Rayfield",
+   Theme = "Default",
+   ToggleUIKeybind = "K",
+   DisableRayfieldPrompts = false,
+   DisableBuildWarnings = false,
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = nil,
+      FileName = "Big Hub"
+   },
+   Discord = {
+      Enabled = false,
+      Invite = "noinvitelink",
+      RememberJoins = true
+   },
+   KeySystem = false,
+   KeySettings = {
+      Title = "Untitled",
+      Subtitle = "Key System",
+      Note = "No method of obtaining the key is provided",
+      FileName = "Key",
+      SaveKey = true,
+      GrabKeyFromSite = false,
+      Key = {"Hello"}
+   }
 })
 
 -- יצירת Tab עם תמונה
@@ -43,3 +69,11 @@ MovementSection:CreateSlider({
         if hum then hum.JumpPower = Value end
     end,
 })
+
+-- חיבור לערכי Humanoid כאשר Character נטען מחדש
+local plr = game.Players.LocalPlayer
+plr.CharacterAdded:Connect(function(char)
+    local hum = char:WaitForChild("Humanoid")
+    hum.WalkSpeed = WalkSpeedValue
+    hum.JumpPower = JumpPowerValue
+end)
