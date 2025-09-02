@@ -1,36 +1,11 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
--- יצירת ה-Window המתקדם
 local Window = Rayfield:CreateWindow({
-   Name = "Rayfield Example Window",
-   Icon = 0,
-   LoadingTitle = "Rayfield Interface Suite",
-   LoadingSubtitle = "by Sirius",
-   ShowText = "Rayfield",
-   Theme = "Default",
+   Name = "Modern Menu",
+   LoadingTitle = "טוען תפריט...",
+   LoadingSubtitle = "Rayfield GUI",
+   Theme = "Ocean",
    ToggleUIKeybind = "K",
-   DisableRayfieldPrompts = false,
-   DisableBuildWarnings = false,
-   ConfigurationSaving = {
-      Enabled = true,
-      FolderName = nil,
-      FileName = "Big Hub"
-   },
-   Discord = {
-      Enabled = false,
-      Invite = "noinvitelink",
-      RememberJoins = true
-   },
-   KeySystem = false,
-   KeySettings = {
-      Title = "Untitled",
-      Subtitle = "Key System",
-      Note = "No method of obtaining the key is provided",
-      FileName = "Key",
-      SaveKey = true,
-      GrabKeyFromSite = false,
-      Key = {"Hello"}
-   }
 })
 
 -- יצירת Tab עם תמונה
@@ -41,12 +16,13 @@ local WalkSpeedValue = 16
 local JumpPowerValue = 50
 
 -- Slider עבור WalkSpeed
-MovementSection:CreateSlider({
+local WalkSlider = MovementSection:CreateSlider({
     Name = "WalkSpeed",
     Range = {16, 300},
     Increment = 1,
     Suffix = "Stud/s",
     CurrentValue = WalkSpeedValue,
+    Flag = "WalkSpeedSlider", -- חשוב לשים Flag ייחודי
     Callback = function(Value)
         WalkSpeedValue = Value
         local plr = game.Players.LocalPlayer
@@ -56,12 +32,13 @@ MovementSection:CreateSlider({
 })
 
 -- Slider עבור JumpPower
-MovementSection:CreateSlider({
+local JumpSlider = MovementSection:CreateSlider({
     Name = "JumpPower",
     Range = {50, 400},
     Increment = 1,
     Suffix = "",
     CurrentValue = JumpPowerValue,
+    Flag = "JumpPowerSlider", -- Flag ייחודי
     Callback = function(Value)
         JumpPowerValue = Value
         local plr = game.Players.LocalPlayer
@@ -70,7 +47,7 @@ MovementSection:CreateSlider({
     end,
 })
 
--- חיבור לערכי Humanoid כאשר Character נטען מחדש
+-- שמירה על הערכים גם אחרי Respawn
 local plr = game.Players.LocalPlayer
 plr.CharacterAdded:Connect(function(char)
     local hum = char:WaitForChild("Humanoid")
