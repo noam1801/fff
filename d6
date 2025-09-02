@@ -29,14 +29,14 @@ local JumpHeightValue = 50
 
 local plr = game.Players.LocalPlayer
 
--- Slider עבור WalkSpeed
+-- WalkSpeed Slider
 PlayerSection:CreateSlider({
     Name = "WalkSpeed",
-    Range = {16, 300}, -- טווח הגיוני למהלך
+    Range = {16, 300},
     Increment = 1,
     Suffix = "Speed",
     CurrentValue = WalkSpeedValue,
-    Flag = "WalkSpeedSlider",
+    Flag = "Slider1",
     Callback = function(Value)
         WalkSpeedValue = Value
         local hum = plr.Character and plr.Character:FindFirstChildOfClass("Humanoid")
@@ -44,29 +44,28 @@ PlayerSection:CreateSlider({
     end
 })
 
--- Slider עבור DashLength
+-- DashLength Slider
 PlayerSection:CreateSlider({
     Name = "Dash Length",
-    Range = {10, 1000}, -- תלוי במכניקה של המשחק
+    Range = {10, 1000},
     Increment = 1,
     Suffix = "Length",
     CurrentValue = DashLengthValue,
-    Flag = "DashLengthSlider",
+    Flag = "Slider2",
     Callback = function(Value)
         DashLengthValue = Value
-        -- אם המשחק שלך משתמש ב-DashLength attribute, אפשר לשים כאן
-        plr.Character:SetAttribute("DashLength", Value)
+        plr.Character:SetAttribute("DashLength", Value) -- אם המשחק קורא לזה
     end
 })
 
--- Slider עבור JumpHeight
+-- JumpHeight Slider
 PlayerSection:CreateSlider({
     Name = "Jump Height",
-    Range = {50, 500}, -- ערך התחלתי טוב
+    Range = {50, 500},
     Increment = 1,
     Suffix = "Height",
     CurrentValue = JumpHeightValue,
-    Flag = "JumpHeightSlider",
+    Flag = "Slider3",
     Callback = function(Value)
         JumpHeightValue = Value
         local hum = plr.Character and plr.Character:FindFirstChildOfClass("Humanoid")
@@ -79,6 +78,5 @@ plr.CharacterAdded:Connect(function(char)
     local hum = char:WaitForChild("Humanoid")
     hum.WalkSpeed = WalkSpeedValue
     hum.JumpPower = JumpHeightValue
-    -- אם אתה רוצה DashLength כאן, תלוי במכניקה של המשחק שלך
     char:SetAttribute("DashLength", DashLengthValue)
 end)
